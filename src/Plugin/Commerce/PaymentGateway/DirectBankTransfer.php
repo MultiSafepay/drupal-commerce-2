@@ -10,8 +10,8 @@ use Drupal\commerce_payment\Plugin\Commerce\PaymentGateway\SupportsRefundsInterf
  *
  * @CommercePaymentGateway(
  *   id = "msp_directbanktransfer",
- *   label = "MultiSafepay (Direct Bank Transfer)",
- *   display_label = "Direct Bank Transfer",
+ *   label = "MultiSafepay (Request to Pay)",
+ *   display_label = "Request to Pay",
  *   modes = {
  *     "n/a" = @Translation("N/A"),
  *   },
