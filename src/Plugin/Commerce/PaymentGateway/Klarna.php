@@ -9,8 +9,8 @@ use Drupal\commerce_multisafepay_payments\Helpers\GatewayStandardMethodsHelper;
  *
  * @CommercePaymentGateway(
  *   id = "msp_klarna",
- *   label = "MultiSafepay (Klarna)",
- *   display_label = "Klarna",
+ *   label = "MultiSafepay (Klarna - Buy now, pay later)",
+ *   display_label = "Klarna - Buy now, pay later",
  *   forms = {
  *     "offsite-payment" =
  *     "Drupal\commerce_multisafepay_payments\PluginForm\StandardPayment\StandardPaymentForm",
