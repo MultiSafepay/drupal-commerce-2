@@ -226,6 +226,11 @@ class GatewayHelper {
         'type'          => 'redirect',
         'shopping_cart' => FALSE,
       ],
+      'msp_good4fun'                 => [
+        'code'          => 'GOOD4FUN',
+        'type'          => 'redirect',
+        'shopping_cart' => FALSE,
+      ],
       'msp_goodcard'                 => [
         'code'          => 'GOODCARD',
         'type'          => 'redirect',
