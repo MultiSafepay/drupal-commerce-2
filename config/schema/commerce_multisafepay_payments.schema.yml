@@ -14,3 +14,9 @@ commerce_multisafepay_payments.settings:
     seconds_active:
       type: string
       label: 'Seconds Alive'
+commerce_payment.commerce_payment_gateway.plugin.msp_generic_gateway:
+  type: commerce_payment_gateway_configuration
+  mapping:
+    generic_gateway_code:
+      type: string
+      label: 'Gateway code'

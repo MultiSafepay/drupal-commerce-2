@@ -126,6 +126,12 @@ class GatewayHelper {
         'type'          => 'redirect',
         'shopping_cart' => FALSE,
       ],
+      'msp_generic_gateway'          => [
+        'code'          => 'GENERIC',
+        'type'          => 'redirect',
+        'shopping_cart' => FALSE,
+      ],
+
 
       // Direct.
       'msp_cbc'                      => [

@@ -11,6 +11,7 @@ use Drupal\commerce_price\Price;
 use Drupal\commerce_shipping\Plugin\Commerce\ShippingMethod\FlatRatePerItem;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Url;
+use Drupal\commerce_payment\Entity\Payment;
 
 /**
  * Class OrderHelper.
@@ -189,6 +190,11 @@ class OrderHelper {
     // Redirect type and the gateway code.
     $gatewayCode = $this->getGatewayHelperOptions($order)['code'];
 
+    // Check if gateway is the generic one; in that case retrieve the gateway code.
+    if ($gatewayCode === 'GENERIC') {
+      $gatewayCode = $payment->getPaymentGateway()->getPlugin()->getConfiguration()['generic_gateway_code'];
+    }
+
     // Check if gateway is ideal and has no issuer id, if so: make redirect.
     if ($gatewayCode === 'IDEAL' && $gatewayInfo['issuer_id'] === 'none') {
       $type = 'redirect';
@@ -247,7 +253,15 @@ class OrderHelper {
     ];
 
     /* Hook commerce_multisafepay_payments_multisafepay_orderdata_PAYMENT_METHOD_alter */
-    $this->moduleHandler->alter(['multisafepay_orderdata_' . strtolower($gatewayCode), 'multisafepay_orderdata'], $orderData, $payment, $gatewayInfo);
+    $this->moduleHandler->alter(
+      [
+        'multisafepay_orderdata_' . strtolower($gatewayCode),
+        'multisafepay_orderdata'
+      ],
+      $orderData,
+      $payment,
+      $gatewayInfo
+    );
 
     return $orderData;
   }
@@ -505,7 +519,7 @@ class OrderHelper {
 
       // Check if weight is enabled.
       if ($product->hasField('weight')
-        && !empty($product->get('weight')->getValue())
+          && !empty($product->get('weight')->getValue())
       ) {
         $productWeight = $product->get('weight')->getValue()[0];
       }
@@ -526,7 +540,7 @@ class OrderHelper {
         // Get price excl. tax.
         $discountRow['tax_table_selector'] = "BTW0";
         $productPrice = $product->getPrice()->getNumber() / (1
-            + $taxAdjustment->getPercentage());
+                                                             + $taxAdjustment->getPercentage());
       }
       else {
         // Get value of the item and convert it to cents.
@@ -554,13 +568,13 @@ class OrderHelper {
 
       // Check if there is a discount. if so Take it off.
       if ($this->discount['amount'] > 0.00
-        || $this->discount['percentage'] > 0.00
+          || $this->discount['percentage'] > 0.00
       ) {
         // Check if its a percentage or Flat discount coupon and set their Algorithms.
         if ($this->discount['type'] === "percentage") {
           $discountRow["unit_price"] += -(($originalProductPrice
-              * $productQuantity) * $this->discount['percentage']
-            - $this->discount['amount']);
+                                           * $productQuantity) * $this->discount['percentage']
+                                          - $this->discount['amount']);
         }
         else {
           $discountRow["unit_price"] = -$this->discount['amount'];
@@ -570,7 +584,7 @@ class OrderHelper {
 
     // If there is a discount, push all discounts to the shopping cart data.
     if ($this->discount['amount'] > 0.00
-      || $this->discount['percentage'] > 0.00
+        || $this->discount['percentage'] > 0.00
     ) {
       array_push($shoppingCartData['items'], $discountRow);
     }
@@ -661,7 +675,7 @@ class OrderHelper {
    */
   public function orderHasShipments(OrderInterface $order) {
     return $order->hasField('shipments')
-      && !$order->get('shipments')->isEmpty();
+           && !$order->get('shipments')->isEmpty();
   }
 
   /**
@@ -727,7 +741,7 @@ class OrderHelper {
 
       // Add data to array.
       $additionalCustomerData["locale"] = strtolower($language) . "_"
-        . strtoupper($language);
+                                          . strtoupper($language);
       $additionalCustomerData["ip_address"] = \Drupal::request()
         ->getClientIp();
       $additionalCustomerData["forwarded_ip"] = self::getForwardedIp();
@@ -823,13 +837,13 @@ class OrderHelper {
 
     // Loop until $offset returns TRUE.
     while (($offset = $this->splitAddress($streetAddress, ' ', $offset))
-      !== FALSE) {
+           !== FALSE) {
 
       // Check if the length of the street address is lower than the offset.
       if ($offset < strlen($streetAddress) - 1
-        && is_numeric(
-          $streetAddress[$offset + 1]
-        )
+          && is_numeric(
+            $streetAddress[$offset + 1]
+          )
       ) {
         // If True, Trim the address and Apartment.
         $address = trim(substr($streetAddress, 0, $offset));
@@ -840,9 +854,9 @@ class OrderHelper {
 
     // Check if apartment is empty and street address is higher than 0.
     if (empty($apartment) && strlen($streetAddress) > 0
-      && is_numeric(
-        $streetAddress[0]
-      )
+        && is_numeric(
+          $streetAddress[0]
+        )
     ) {
       // Find the position of the first occurrence of a substring in street address.
       $pos = strpos($streetAddress, ' ');
