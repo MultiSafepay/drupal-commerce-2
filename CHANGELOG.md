@@ -1,14 +1,17 @@
-## 8.x-2.1
-Release date: Mar 18th, 2021
+## 3.0.0
+Release date: Mar 19th, 2021
 
 ### Added
-+ DAVAMS-272: added CBC payment method
++ DAVAMS-272: Add CBC payment method
 + PLGDC8-48: Add generic gateway
 + DAVAMS-336: Add Good4fun Giftcard
 
 ### Changed
 + DAVAMS-317: Rebrand Klarna
 + DAVAMS-300: Rebrand Direct Bank Transfer to Request to Pay
++ Switch to semantic versioning
+
+***
 
 ## 8.x-2.0
 Release date: Jun 24th, 2020
