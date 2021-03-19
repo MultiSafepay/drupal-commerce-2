@@ -13,8 +13,8 @@ The supported Payment Methods & Gift cards for this plugin can be found over her
 
 ## Requirements
 - To use the plugin you need a MultiSafepay account. You can create a test account on https://testmerchant.multisafepay.com/signup
-- Drupal 8.5.x
-- Drupal Commerce 2.x.
+- Drupal 8.8.x or 9.x
+- Drupal Commerce 2.x
 
 ## Installation
 For installing the latest stable version of our Drupal Commerce 2.x plugin please run the following command in your terminal
