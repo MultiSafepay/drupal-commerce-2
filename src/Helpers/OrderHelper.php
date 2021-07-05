@@ -697,21 +697,23 @@ class OrderHelper {
     $profileData = $shipmentData['profileData'];
     $returnData = $shipmentData['additionalCustomerData'];
 
-    // Split street and house number.
-    $addressData = $this->parseCustomerAddress(
-      $profileData->getAddressLine1()
-    );
+    if(!empty($profileData)) {
+      // Split street and house number.
+      $addressData = $this->parseCustomerAddress(
+        $profileData->getAddressLine1()
+      );
 
-    // Return  data.
-    $returnData["first_name"] = $profileData->getGivenName();
-    $returnData["last_name"] = $profileData->getFamilyName();
-    $returnData["address1"] = $addressData['address'];
-    $returnData["address2"] = $profileData->getAddressLine2();
-    $returnData["house_number"] = $addressData['housenumber'];
-    $returnData["zip_code"] = trim($profileData->getPostalCode());
-    $returnData["city"] = $profileData->getLocality();
-    $returnData["state"] = $profileData->getAdministrativeArea();
-    $returnData["country"] = $profileData->getCountryCode();
+      // Return  data.
+      $returnData["first_name"] = $profileData->getGivenName();
+      $returnData["last_name"] = $profileData->getFamilyName();
+      $returnData["address1"] = $addressData['address'];
+      $returnData["address2"] = $profileData->getAddressLine2();
+      $returnData["house_number"] = $addressData['housenumber'];
+      $returnData["zip_code"] = trim($profileData->getPostalCode());
+      $returnData["city"] = $profileData->getLocality();
+      $returnData["state"] = $profileData->getAdministrativeArea();
+      $returnData["country"] = $profileData->getCountryCode();
+    }
     $returnData["email"] = $order->getEmail();
 
     return $returnData;
@@ -734,7 +736,8 @@ class OrderHelper {
     // Check if Order has no shipment.
     if ($shipping === FALSE) {
 
-      $arrayData = $order->getBillingProfile()->get('address')->first();
+      $profile = $order->getBillingProfile();
+      $arrayData = empty($profile) ? [] : $profile->get('address')->first();
 
       // Get Lang.
       $language = \Drupal::languageManager()->getCurrentLanguage()->getId();
