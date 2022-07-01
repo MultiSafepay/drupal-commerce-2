@@ -1,0 +1,42 @@
+version: "3"
+
+services:
+  mysql:
+    image: mysql:8.0
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: example
+      MYSQL_DATABASE: drupal
+    volumes:
+      - db-data:/var/lib/mysql
+  adminer:
+    image: adminer
+    depends_on:
+      - mysql
+    ports:
+      - "8080:8080"
+  drupal:
+    build:
+      dockerfile: ./docker/drupal/Dockerfile
+      context: .
+    ports:
+      - '80:80'
+    entrypoint: /entrypoint.sh
+    depends_on:
+      - mysql
+    volumes:
+      - "./:/opt/drupal/web/modules/contrib/commerce_multisafepay_payments"
+  mailcatcher:
+    image: sj26/mailcatcher
+    ports:
+      - "1080:1080"
+  expose:
+    depends_on:
+      - drupal
+    build: https://github.com/beyondcode/expose.git
+    entrypoint: [ "/bin/sh", "-c" , "/src/expose token ${EXPOSE_TOKEN} && sed -i -E \"s/'dns'\\s?=>\\s?'.*'/'dns' => true/g\" /root/.expose/config.php  && /src/expose share drupal --server-host=${EXPOSE_HOST} --subdomain=${APP_SUBDOMAIN}" ]
+    ports:
+      - 4040:4040
+volumes:
+  drupal-data:
+  db-data:

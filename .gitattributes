@@ -2,3 +2,6 @@
 /.gitignore export-ignore
 /.github/ export-ignore
 /.circleci/ export-ignore
+/docker-compose.yml export-ignore
+/docker export-ignore
+/.env.example export-ignore
