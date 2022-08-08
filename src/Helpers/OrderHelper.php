@@ -697,7 +697,7 @@ class OrderHelper {
     $profileData = $shipmentData['profileData'];
     $returnData = $shipmentData['additionalCustomerData'];
 
-    if(!empty($profileData)) {
+    if (!empty($profileData)) {
       // Split street and house number.
       $addressData = $this->parseCustomerAddress(
         $profileData->getAddressLine1()
@@ -816,7 +816,7 @@ class OrderHelper {
    *   Parse customer address
    */
   public function parseCustomerAddress($streetAddress) {
-    list($address, $apartment) = $this->parseAddress($streetAddress);
+    [$address, $apartment] = $this->parseAddress($streetAddress);
     $customer['address'] = $address;
     $customer['housenumber'] = $apartment;
     return $customer;
