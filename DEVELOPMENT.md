@@ -14,7 +14,8 @@ cp .env.example .env
 ```
 - **EXPOSE_HOST** can be set to the expose server to connect to
 - **APP_SUBDOMAIN** replace the `-xx` in `drupal-commerce-2-dev-xx` with a number for example `drupal-commerce-2-dev-05`
-- **EXPOSE_TOKEN** must be filled in
+- **EXPOSE_TOKEN** must be filled in`
+- **GITHUB_TOKEN** must be filled in`
 
 3. In the ```docker-compose.yml``` file replace the name of the container with the name ```'your-url'``` with the ```APP_SUBDOMAIN``` and the ```EXPOSE_HOST```
 4. In the ```docker-compose.yml``` in the expose container. within the ```entrypoint``` and the ```depends-on```. replace the ```your-url``` with the newly named container in the step above
