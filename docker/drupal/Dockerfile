@@ -24,4 +24,5 @@ RUN composer config allow-plugins.drupal/console-extend-plugin true
 RUN composer install --no-interaction
 RUN composer require drupal/console:@stable --prefer-dist --optimize-autoloader --sort-packages --with-all-dependencies --no-interaction --no-update
 RUN composer update --no-interaction
-RUN chown -R www-data:www-data /opt/drupal
+RUN git clone https://oauth2:${GITHUB_TOKEN}@github.com/MultiSafepay/drupal-expose.git ./drupal_expose/
+RUN chown -R www-data:www-data ./

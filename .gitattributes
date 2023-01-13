@@ -3,3 +3,5 @@
 /.github/ export-ignore
 /.circleci/ export-ignore
 /DEVELOPMENT.md export-ignore
+/docker export-ignore
+/docker-compose.yml export-ignore
