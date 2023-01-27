@@ -1,5 +1,4 @@
-<?php
-
+<?php declare(strict_types=1);
 namespace Drupal\commerce_multisafepay_payments\Helpers;
 
 use Drupal\Core\StringTranslation\StringTranslationTrait;
@@ -7,30 +6,31 @@ use Drupal\Core\StringTranslation\StringTranslationTrait;
 /**
  * Class ConditionHelper.
  */
-class ConditionHelper {
+class ConditionHelper
+{
 
-  use StringTranslationTrait;
+    use StringTranslationTrait;
 
   /**
    * Get value of enabled Total.
    *
    * @var object
    */
-  protected $enabledTotal;
+    protected $enabledTotal;
 
   /**
    * Get value of $currencyType.
    *
    * @var object
    */
-  protected $enabledCurrency;
+    protected $enabledCurrency;
 
   /**
    * Get value of $currencyType.
    *
    * @var object
    */
-  protected $currencyType;
+    protected $currencyType;
 
   /**
    * Sets the Order amount condition.
@@ -46,11 +46,12 @@ class ConditionHelper {
    * @return array
    *   Created rule
    */
-  public function orderTotalCondition($operator, $amount, $currency) {
+    public function orderTotalCondition($operator, $amount, $currency)
+    {
 
-    // Create a condition.
-    $condition = [
-      'conditions' => [
+      // Create a condition.
+        $condition = [
+        'conditions' => [
         [
           'plugin'        => 'order_total_price',
           'configuration' => [
@@ -61,14 +62,14 @@ class ConditionHelper {
             ],
           ],
         ],
-      ],
-    ];
+        ],
+        ];
 
-    // Set enabled TRUE because we use it.
-    $this->enabledTotal = TRUE;
+      // Set enabled TRUE because we use it.
+        $this->enabledTotal = true;
 
-    return $condition;
-  }
+        return $condition;
+    }
 
   /**
    * Set the currency to this so we can use it in the messages.
@@ -79,11 +80,12 @@ class ConditionHelper {
    * @return bool
    *   Created rule
    */
-  public function orderCurrencyCondition($currency) {
-    $this->currencyType = $currency;
-    $this->enabledCurrency = TRUE;
-    return TRUE;
-  }
+    public function orderCurrencyCondition($currency)
+    {
+        $this->currencyType = $currency;
+        $this->enabledCurrency = true;
+        return true;
+    }
 
   /**
    * Sets the message of the condition.
@@ -91,48 +93,38 @@ class ConditionHelper {
    * @return array
    *   Created message
    */
-  public function orderConditionMessage() {
-    $message = t(
-      'This gateway contains a restriction. To enable it please click on Order and Enable:'
-    );
+    public function orderConditionMessage()
+    {
+        $message = t(
+            'This gateway contains a restriction. To enable it please click on Order and Enable:'
+        );
 
-    // Set styling.
-    $form['styling'] = [
-      '#type'  => 'html_tag',
-      '#tag'   => 'style',
-      '#value' => '
+      // Set styling.
+        $form['styling'] = [
+        '#type'  => 'html_tag',
+        '#tag'   => 'style',
+        '#value' => '
                 h3, li {
                     color: #0074bd;
                 }
        ',
-    ];
+        ];
 
-    // Set message.
-    $form['details'] = [
-      '#type'  => 'html_tag',
-      '#tag'   => 'b',
-      '#value' => '
+      // Set message.
+        $form['details'] = [
+        '#type'  => 'html_tag',
+        '#tag'   => 'b',
+        '#value' => '
             <h3>' . $message . '</h3>
             <ul>
                 ' . $this->checkTotalCondition() . '
                 ' . $this->checkCurrencyCondition() . '
             </ul>
        ',
-    ];
+        ];
 
-    return $form;
-  }
-
-  /**
-   * Sets the message of the condition.
-   *
-   * @return string
-   *   Created message
-   */
-  public function checkTotalCondition() {
-    return $this->enabledTotal ? '<li>' . t('Current order total') . '</li>'
-      : '';
-  }
+        return $form;
+    }
 
   /**
    * Sets the message of the condition.
@@ -140,11 +132,23 @@ class ConditionHelper {
    * @return string
    *   Created message
    */
-  public function checkCurrencyCondition() {
-    return $this->enabledCurrency ? '<li>' . t('Order currency') . ' - '
-      . t(
-        $this->currencyType
-      ) . '</li>' : '';
-  }
+    public function checkTotalCondition()
+    {
+        return $this->enabledTotal ? '<li>' . t('Current order total') . '</li>'
+        : '';
+    }
 
+  /**
+   * Sets the message of the condition.
+   *
+   * @return string
+   *   Created message
+   */
+    public function checkCurrencyCondition()
+    {
+        return $this->enabledCurrency ? '<li>' . t('Order currency') . ' - '
+        . t(
+            $this->currencyType
+        ) . '</li>' : '';
+    }
 }

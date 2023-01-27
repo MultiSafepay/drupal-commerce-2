@@ -1,5 +1,4 @@
-<?php
-
+<?php declare(strict_types=1);
 namespace Drupal\commerce_multisafepay_payments\Plugin\Commerce\PaymentGateway;
 
 use Drupal\commerce_multisafepay_payments\Helpers\GatewayStandardMethodsHelper;
@@ -23,7 +22,8 @@ use Drupal\Core\Form\FormStateInterface;
  * )
  */
 class Ideal extends GatewayStandardMethodsHelper implements
-    SupportsRefundsInterface {
+    SupportsRefundsInterface
+{
 
   /**
    * Build the unique iDeal configuration form.
@@ -36,20 +36,19 @@ class Ideal extends GatewayStandardMethodsHelper implements
    * @return array
    *   Added condition
    */
-  public function buildConfigurationForm(
-    array $form,
-    FormStateInterface $form_state
-  ) {
-    // Make the Condition.
-    $this->mspConditionHelper->orderCurrencyCondition('Euro');
+    public function buildConfigurationForm(
+        array $form,
+        FormStateInterface $form_state
+    ) {
+      // Make the Condition.
+        $this->mspConditionHelper->orderCurrencyCondition('Euro');
 
-    // Build default form.
-    $form = parent::buildConfigurationForm($form, $form_state);
+      // Build default form.
+        $form = parent::buildConfigurationForm($form, $form_state);
 
-    // Make a message.
-    $form['details'] = $this->mspConditionHelper->orderConditionMessage();
+      // Make a message.
+        $form['details'] = $this->mspConditionHelper->orderConditionMessage();
 
-    return $form;
-  }
-
+        return $form;
+    }
 }

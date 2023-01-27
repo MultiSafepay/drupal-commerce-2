@@ -1,25 +1,25 @@
-<?php
-
+<?php declare(strict_types=1);
 namespace Drupal\commerce_multisafepay_payments\API\Object;
 
 /**
  * Class Gateways.
  */
-class Gateways extends Core {
+class Gateways extends Core
+{
 
   /**
    * Success?
    *
    * @var bool
    */
-  public $success;
+    public $success;
 
   /**
    * Data.
    *
    * @var object
    */
-  public $data;
+    public $data;
 
   /**
    * Create predefined GET gateways request.
@@ -36,19 +36,21 @@ class Gateways extends Core {
    * @return mixed
    *   Process get request
    */
-  public function get(
-    $endpoint = 'gateways',
-    $type = '',
-    array $body = [],
-    $query_string = FALSE
-  ) {
-    $result = parent::get(
-      $endpoint, $type, $body, $query_string
-    );
-    $this->success = $result->success;
-    $this->data = $result->data;
+    public function get(
+        $endpoint = 'gateways',
+        $type = '',
+        array $body = [],
+        $query_string = false
+    ) {
+        $result = parent::get(
+            $endpoint,
+            $type,
+            $body,
+            $query_string
+        );
+        $this->success = $result->success;
+        $this->data = $result->data;
 
-    return $this->data;
-  }
-
+        return $this->data;
+    }
 }

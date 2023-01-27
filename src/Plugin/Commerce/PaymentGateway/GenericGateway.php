@@ -1,5 +1,4 @@
-<?php
-
+<?php declare(strict_types=1);
 namespace Drupal\commerce_multisafepay_payments\Plugin\Commerce\PaymentGateway;
 
 use Drupal\commerce_multisafepay_payments\Helpers\GatewayStandardMethodsHelper;
@@ -23,7 +22,8 @@ use Drupal\Core\Form\FormStateInterface;
  * )
  */
 class GenericGateway extends GatewayStandardMethodsHelper implements
-    SupportsRefundsInterface {
+    SupportsRefundsInterface
+{
 
   /**
    * Default configuration.
@@ -31,11 +31,12 @@ class GenericGateway extends GatewayStandardMethodsHelper implements
    * @return array|string[]
    *   The settings
    */
-  public function defaultConfiguration() {
-    return [
-      'generic_gateway_code' => '',
-    ] + parent::defaultConfiguration();
-  }
+    public function defaultConfiguration()
+    {
+        return [
+        'generic_gateway_code' => '',
+        ] + parent::defaultConfiguration();
+    }
 
   /**
    * Build the settings form for the generic gateway.
@@ -48,19 +49,20 @@ class GenericGateway extends GatewayStandardMethodsHelper implements
    * @return array
    *   Added condition
    */
-  public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
-    $form = parent::buildConfigurationForm($form, $form_state);
+    public function buildConfigurationForm(array $form, FormStateInterface $form_state)
+    {
+        $form = parent::buildConfigurationForm($form, $form_state);
 
-    $form['generic_gateway_code'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('Gateway code'),
-      '#description' => $this->t('The gateway code.'),
-      '#default_value' => $this->configuration['generic_gateway_code'],
-      '#required' => TRUE,
-    ];
+        $form['generic_gateway_code'] = [
+        '#type' => 'textfield',
+        '#title' => $this->t('Gateway code'),
+        '#description' => $this->t('The gateway code.'),
+        '#default_value' => $this->configuration['generic_gateway_code'],
+        '#required' => true,
+        ];
 
-    return $form;
-  }
+        return $form;
+    }
 
   /**
    * Process the settings form for the generic gateway.
@@ -70,10 +72,10 @@ class GenericGateway extends GatewayStandardMethodsHelper implements
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   Form state.
    */
-  public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
-    parent::submitConfigurationForm($form, $form_state);
-    $values = $form_state->getValue($form['#parents']);
-    $this->configuration['generic_gateway_code'] = $values['generic_gateway_code'];
-  }
-
+    public function submitConfigurationForm(array &$form, FormStateInterface $form_state)
+    {
+        parent::submitConfigurationForm($form, $form_state);
+        $values = $form_state->getValue($form['#parents']);
+        $this->configuration['generic_gateway_code'] = $values['generic_gateway_code'];
+    }
 }

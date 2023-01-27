@@ -15,7 +15,8 @@
     ],
     "minimum-stability": "dev",
     "require-dev": {
-        "drupal/coder": "~8.3"
+        "drupal/coder": "~8.3",
+        "multisafepay/coding-standards": "dev-master"
     },
     "config": {
         "allow-plugins": {
@@ -23,4 +24,3 @@
         }
     }
 }
-

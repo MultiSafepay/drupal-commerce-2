@@ -1,5 +1,4 @@
-<?php
-
+<?php declare(strict_types=1);
 namespace Drupal\commerce_multisafepay_payments\Plugin\Commerce\PaymentGateway;
 
 use Drupal\commerce_multisafepay_payments\Helpers\GatewayStandardMethodsHelper;
@@ -18,7 +17,8 @@ use Drupal\Core\Form\FormStateInterface;
  *   },
  * )
  */
-class Santander extends GatewayStandardMethodsHelper {
+class Santander extends GatewayStandardMethodsHelper
+{
 
   /**
    * Create unique settings form for Santander.
@@ -31,28 +31,29 @@ class Santander extends GatewayStandardMethodsHelper {
    * @return array
    *   Added conditions
    */
-  public function buildConfigurationForm(
-    array $form,
-    FormStateInterface $form_state
-  ) {
-    // Make the Condition.
-    $orderTotalCondition = $this->mspConditionHelper->orderTotalCondition(
-      '>=', '250', 'EUR'
-    );
-    $this->mspConditionHelper->orderCurrencyCondition('Euro');
+    public function buildConfigurationForm(
+        array $form,
+        FormStateInterface $form_state
+    ) {
+      // Make the Condition.
+        $orderTotalCondition = $this->mspConditionHelper->orderTotalCondition(
+            '>=',
+            '250',
+            'EUR'
+        );
+        $this->mspConditionHelper->orderCurrencyCondition('Euro');
 
-    // Set the values.
-    $form_state->setValues(
-      array_merge($orderTotalCondition, $form_state->getValues())
-    );
+      // Set the values.
+        $form_state->setValues(
+            array_merge($orderTotalCondition, $form_state->getValues())
+        );
 
-    // Build default form.
-    $form = parent::buildConfigurationForm($form, $form_state);
+      // Build default form.
+        $form = parent::buildConfigurationForm($form, $form_state);
 
-    // Make a message.
-    $form['details'] = $this->mspConditionHelper->orderConditionMessage();
+      // Make a message.
+        $form['details'] = $this->mspConditionHelper->orderConditionMessage();
 
-    return $form;
-  }
-
+        return $form;
+    }
 }

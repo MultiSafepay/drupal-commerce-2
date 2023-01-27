@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<ruleset name="MultiSafepay-Drupal">
+    <arg name="extensions" value="php,module,inc,install,test,profile,theme,css,info,txt,md,yml" />
+    <description>MultiSafepay coding styles rules</description>
+    <exclude-pattern>*/vendor/*</exclude-pattern>
+    <rule ref="./vendor/multisafepay/coding-standards/php71.phpcs.xml"/>
+    <rule ref="DrupalPractice">
+        <exclude name="DrupalPractice.CodeAnalysis.VariableAnalysis.UnusedVariable"/>
+    </rule>
+    <config name="testVersion" value="7.0-"/>
+</ruleset>
