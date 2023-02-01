@@ -8,7 +8,7 @@ commerce_multisafepay_payments.settings:
     live_api_key:
       type: string
       label: 'Live API Key'
-    accout_type:
+    account_type:
       type: string
       label: 'Account Type'
     seconds_active:

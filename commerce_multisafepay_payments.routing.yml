@@ -5,3 +5,10 @@ commerce_multisafepay_payments.settings:
     _title: 'MultiSafepay configuration screen'
   requirements:
     _permission: 'administer site configuration'
+commerce_multisafepay_payments.confirm:
+  path: '/multisafepay/checkout/return'
+  defaults:
+    _controller: '\Drupal\commerce_multisafepay_payments\Controller\SecondChanceController::content'
+    _title: 'MultiSafepay Return'
+  requirements:
+    _permission: 'access content'

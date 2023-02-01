@@ -32,13 +32,13 @@ class ApiHelper
         }
 
       // Check if the account type is set to Test Or live.
-        if ($mode === "live") {
+        if (strtolower($mode) === 'live') {
           // Set Live URL.
             $client->setApiUrl('https://api.multisafepay.com/v1/json/');
           // Set the API key.
             $client->setApiKey($liveApiKey);
         } else {
-            if ($mode === 'test') {
+            if (strtolower($mode) === 'test') {
               // Set Test URL.
                 $client->setApiUrl('https://testapi.multisafepay.com/v1/json/');
               // Set the API key.

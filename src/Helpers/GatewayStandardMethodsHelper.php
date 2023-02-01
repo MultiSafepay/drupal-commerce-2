@@ -13,6 +13,7 @@ use Drupal\commerce_payment\Plugin\Commerce\PaymentGateway\SupportsNotifications
 use Drupal\commerce_price\Price;
 use Drupal\Component\Datetime\TimeInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\state_machine\Plugin\Field\FieldType\StateItem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -125,26 +126,45 @@ class GatewayStandardMethodsHelper extends OffsitePaymentGatewayBase implements
    * @throws \Drupal\Core\Entity\EntityStorageException
    * @throws \Drupal\Core\TypedData\Exception\MissingDataException
    */
-    public function nextStep(OrderInterface $order, $mspOrder)
+    public function transitionOrder(OrderInterface $order, $mspOrder)
     {
-      // Load order from database to prevent cached order state.
+        // Load order from database to prevent cached order state.
         $orderStorage = $this->entityTypeManager->getStorage('commerce_order');
         $orderStorage->resetCache([$order->id()]);
         $order = $orderStorage->load($order->id());
 
+        /** @var StateItem $stateItem */
         $stateItem = $order->get('state')->first();
+
+        if (OrderHelper::isStatusCancelled($mspOrder->status)) {
+            // Move the order to cancel
+            $transition = $stateItem->getTransitions()['cancel'];
+            $stateItem->applyTransition($transition);
+        }
+
         $currentState = $stateItem->getValue();
 
-      // If order is completed && Check if current state is draft.
-        if (OrderHelper::isStatusCompleted($mspOrder->status)
-        && $currentState['value'] === 'draft'
-        ) {
-          // Place the order.
-            $transitions = $stateItem->getTransitions();
-            $stateItem->applyTransition(current($transitions));
-            $this->mspOrderHelper->logMsp($order, 'order_reopened');
-            $order->save();
+
+        if (OrderHelper::isStatusCompleted($mspOrder->status)) {
+            if ($currentState['value'] === 'canceled') {
+                // Re-open the order, move the order back to draft and move it to the next default status
+                $this->mspOrderHelper->logMsp($order, 'order_reopened');
+                $stateItem->applyDefaultValue();
+                $stateItem->applyTransition(current($stateItem->getTransitions()));
+            }
+
+            $currentState = $stateItem->getValue();
+            // Check if the order has reached the final to last step, even after the re-opening of the order.
+            // If so, don't update the order
+            if ($currentState['value'] === 'fulfillment') {
+                return;
+            }
+
+            //Move the order to the next default status
+            $stateItem->applyTransition(current($stateItem->getTransitions()));
         }
+
+        $order->save();
     }
 
   /**
@@ -214,7 +234,7 @@ class GatewayStandardMethodsHelper extends OffsitePaymentGatewayBase implements
         }
 
       // Set order in the next step.
-        $this->nextStep($order, $mspOrder);
+        $this->transitionOrder($order, $mspOrder);
 
       // Get the payment.
         $payment = $this->createPayment($order, $mspOrder);

@@ -157,7 +157,21 @@ class OrderHelper
             $status,
             [
             OrderHelper::MSP_COMPLETED,
-            OrderHelper::MSP_UNCLEARED,
+            ]
+        );
+    }
+
+  /** Check if the order is cancelled */
+    public static function isStatusCancelled($status)
+    {
+        return in_array(
+            $status,
+            [
+              self::MSP_CANCELLED,
+              self::MSP_EXPIRED,
+              self::MSP_DECLINED,
+              self::MSP_VOID,
+
             ]
         );
     }
@@ -180,7 +194,7 @@ class OrderHelper
     public function createOrderData($form, $payment, array $gatewayInfo = [])
     {
       // Get URLS.
-        $redirectUrl = $form['#return_url'];
+        $redirectUrl = $this->buildReturnUrl()->toString();
         $notification = $this->getNotifyUrl($payment)->toString();
         $cancelUrl = $form['#cancel_url'];
 
@@ -987,5 +1001,10 @@ class OrderHelper
             'external_id' => $mspOrder->payment_details->external_transaction_id,
             ]
         )->save();
+    }
+
+    private function buildReturnUrl(): Url
+    {
+        return Url::fromRoute('commerce_multisafepay_payments.confirm', [], ['absolute' => true]);
     }
 }
