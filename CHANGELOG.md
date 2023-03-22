@@ -1,3 +1,15 @@
+## 3.1.0
+Release date: Mar 22nd, 2023
+
+### Added
++ PLGDC8-60 / PLGDC8-59: Add support for canceled order status
++ PLGDC8-64: Add logging function on onNotify function
+
+### Fixed
++ Fix empty profile support - Issue [#3221601](https://www.drupal.org/project/commerce_multisafepay_payments/issues/3221601) by [Mykola Dolynskyi](https://www.drupal.org/u/mykola-dolynskyi)
+
+*** 
+
 ## 3.0.0
 Release date: Mar 19th, 2021
 
