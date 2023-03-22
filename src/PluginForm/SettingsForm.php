@@ -84,6 +84,14 @@ class SettingsForm extends ConfigFormBase
         '#description'   => $this->t('Time an order stays active.'),
         ];
 
+        // Plugin debug mode field.
+        $form['debug'] = [
+            '#type'          => 'checkbox',
+            '#title'         => $this->t('Debug mode'),
+            '#default_value' => $config->get('debug'),
+            '#description'   => $this->t('Set the plugin to debug mode to get extensive logging'),
+        ];
+
       // Generate the form.
         return parent::buildForm($form, $form_state);
     }
@@ -103,6 +111,7 @@ class SettingsForm extends ConfigFormBase
         $testApiKey = $form_state->getValue('test_api_key');
         $accountType = $form_state->getValue('account_type');
         $secondsActive = $form_state->getValue('seconds_active');
+        $debug = $form_state->getValue('debug');
 
       // Retrieve the configuration.
         $this->configFactory->getEditable('commerce_multisafepay_payments.settings')
@@ -111,6 +120,7 @@ class SettingsForm extends ConfigFormBase
         ->set('test_api_key', $testApiKey)
         ->set('account_type', $accountType)
         ->set('seconds_active', $secondsActive)
+        ->set('debug', $debug)
         ->save();
 
         parent::submitForm($form, $form_state);

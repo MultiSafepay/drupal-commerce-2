@@ -3,6 +3,7 @@ namespace Drupal\commerce_multisafepay_payments\Helpers;
 
 use Drupal\commerce_multisafepay_payments\API\Client;
 use Drupal\commerce_multisafepay_payments\Exceptions\ExceptionHelper;
+use Drupal\commerce_multisafepay_payments\Log\Logger;
 use Drupal\commerce_order\Entity\Order;
 use Drupal\commerce_order\Entity\OrderInterface;
 use Drupal\commerce_payment\Entity\PaymentInterface;
@@ -66,6 +67,8 @@ class GatewayStandardMethodsHelper extends OffsitePaymentGatewayBase implements
    */
     protected $paymentStorage;
 
+    private $logger;
+
   /**
    * GatewayStandardMethodsHelper constructor.
    *
@@ -113,6 +116,7 @@ class GatewayStandardMethodsHelper extends OffsitePaymentGatewayBase implements
         $this->paymentStorage = $entity_type_manager->getStorage(
             'commerce_payment'
         );
+        $this->logger = new Logger();
     }
 
   /**
@@ -128,6 +132,8 @@ class GatewayStandardMethodsHelper extends OffsitePaymentGatewayBase implements
    */
     public function transitionOrder(OrderInterface $order, $mspOrder)
     {
+        $this->logger->debug('preparing transition order');
+
         // Load order from database to prevent cached order state.
         $orderStorage = $this->entityTypeManager->getStorage('commerce_order');
         $orderStorage->resetCache([$order->id()]);
@@ -138,32 +144,42 @@ class GatewayStandardMethodsHelper extends OffsitePaymentGatewayBase implements
 
         if (OrderHelper::isStatusCancelled($mspOrder->status)) {
             // Move the order to cancel
+            $this->logger->debug('Move order to cancelled');
             $transition = $stateItem->getTransitions()['cancel'];
             $stateItem->applyTransition($transition);
         }
 
+        $this->logger->debug('Getting current value of the state');
         $currentState = $stateItem->getValue();
 
 
         if (OrderHelper::isStatusCompleted($mspOrder->status)) {
+            $this->logger->debug('MultiSafepay status is considered completed');
             if ($currentState['value'] === 'canceled') {
+                $this->logger->debug('Re-opening order. Moving order to default state plus one');
                 // Re-open the order, move the order back to draft and move it to the next default status
                 $this->mspOrderHelper->logMsp($order, 'order_reopened');
                 $stateItem->applyDefaultValue();
                 $stateItem->applyTransition(current($stateItem->getTransitions()));
             }
 
+
             $currentState = $stateItem->getValue();
             // Check if the order has reached the final to last step, even after the re-opening of the order.
             // If so, don't update the order
+
+
             if ($currentState['value'] === 'fulfillment') {
+                $this->logger->debug('Order state is currently fulfillment, don\'t update the status');
                 return;
             }
 
             //Move the order to the next default status
+            $this->logger->debug('Moving order state to the next state');
             $stateItem->applyTransition(current($stateItem->getTransitions()));
         }
 
+        $this->logger->debug('Saving the order state');
         $order->save();
     }
 
@@ -208,49 +224,60 @@ class GatewayStandardMethodsHelper extends OffsitePaymentGatewayBase implements
    */
     public function onNotify(Request $request)
     {
-      // Get the order id & check if there's no transaction id.
+        // Get the order id & check if there's no transaction id.
         $transactionId = $request->get('transactionid');
+
         if (empty($transactionId)) {
+            $this->logger->debug('Tried to start notification process, but no transaction ID was found');
             return new Response('Error 500', 500);
         }
 
-      // Get the order & Check if order is not null.
-        if (!$order = Order::load($transactionId)) {
-            $order = $this->getOrderFromOrderNumber($transactionId);
-        }
+        $this->logger->debug('Starting notification process for transaction ID #' . $transactionId);
+
+        // Get the order & Check if order is not null.
+        $this->logger->debug('Finding order for transaction ID #' . $transactionId);
+        $order = Order::load($transactionId);
 
         if (is_null($order)) {
+            $this->logger->debug('Could not find order for transaction ID #' . $transactionId);
             return new Response("Order does not exist");
         }
 
-      // Get payment gateway.
-        $gateway = $order->get('payment_gateway')->first()->entity;
+        $this->logger->debug('Found order for transaction ID #' . $transactionId);
 
-      // Get the MSP order & check if payment details has been found.
+        // Get payment gateway.
+        $gateway = $order->get('payment_gateway')->first()->entity;
+        $this->logger->debug('Finding gateway for transaction ID #' . $transactionId);
+
+        // Get the MSP order & check if payment details has been found.
         $mspOrder = $this->getMspOrder($order, $transactionId);
+        $this->logger->debug('Finding MultiSafepay order for transaction ID #' . $transactionId);
 
         if (!isset($mspOrder->payment_details)) {
+            $this->logger->debug('Could\'t find MultiSafepay order for transaction ID #' . $transactionId);
             return new Response("No payment details found");
         }
 
-      // Set order in the next step.
+        // Set order in the next step.
         $this->transitionOrder($order, $mspOrder);
 
-      // Get the payment.
+        // Get the payment.
+        $this->logger->debug('Create payment line for order');
         $payment = $this->createPayment($order, $mspOrder);
 
-      // Get the MSP status & check if order has changed state.
+        // Get the MSP status & check if order has changed state.
+        $this->logger->debug('Set state for payment line');
         $state = OrderHelper::getPaymentState($mspOrder->status);
         if (!is_null($state)) {
             $payment->setState($state)->save();
         }
 
-      // Check if status is uncleared.
+        // Check if status is uncleared.
         if ($mspOrder->status === OrderHelper::MSP_UNCLEARED) {
             $this->mspOrderHelper->logMsp($order, 'order_uncleared');
         }
 
-      // Get the msp Gateway & Check if paid with other payment method then registered.
+        // Get the msp Gateway & Check if paid with other payment method then registered.
         $mspGateway = $mspOrder->payment_details->type;
         $this->mspGatewayHelper->logDifferentGateway(
             $mspGateway,
