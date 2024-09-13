@@ -1,5 +1,4 @@
-<?php
-
+<?php declare(strict_types=1);
 namespace Drupal\commerce_multisafepay_payments\Log;
 
 class Logger

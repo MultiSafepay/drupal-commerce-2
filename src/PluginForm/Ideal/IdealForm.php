@@ -94,7 +94,7 @@ class IdealForm extends BasePaymentOffsiteForm
 
         $issuerArray = [];
 
-        $issuerArray['none'] = t('Choose your bank...');
+        $issuerArray['none'] = $this->t('Choose your bank...');
 
         foreach ($issuers as $issuer) {
             $issuerArray[$issuer->code] = $issuer->description;
@@ -102,14 +102,14 @@ class IdealForm extends BasePaymentOffsiteForm
 
         $form['issuer'] = [
         '#type'          => 'select',
-        '#title'         => t('Select your bank'),
+        '#title'         => $this->t('Select your bank'),
         '#options'       => $issuerArray,
         "#default_value" => 'none',
         ];
 
         $form['submit'] = [
         '#type'  => 'submit',
-        '#value' => t('Submit'),
+        '#value' => $this->t('Submit'),
         ];
 
         $form['cancel'] = [
@@ -118,7 +118,7 @@ class IdealForm extends BasePaymentOffsiteForm
         '#attributes' => [
         "href" => $form['#cancel_url'],
         ],
-        '#value'      => t('Go back'),
+        '#value'      => $this->t('Go back'),
         ];
 
         return $form;
@@ -143,7 +143,7 @@ class IdealForm extends BasePaymentOffsiteForm
     ) {
 
       // Get issuer.
-        $issuerId = \Drupal::request()->request->get(
+        $issuerId = \Drupal::request()->request->all(
             'payment_process'
         )['offsite_payment']['issuer'];
 

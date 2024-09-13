@@ -95,7 +95,7 @@ class ConditionHelper
    */
     public function orderConditionMessage()
     {
-        $message = t(
+        $message = $this->t(
             'This gateway contains a restriction. To enable it please click on Order and Enable:'
         );
 
@@ -134,7 +134,7 @@ class ConditionHelper
    */
     public function checkTotalCondition()
     {
-        return $this->enabledTotal ? '<li>' . t('Current order total') . '</li>'
+        return $this->enabledTotal ? '<li>' . $this->t('Current order total') . '</li>'
         : '';
     }
 
@@ -146,8 +146,8 @@ class ConditionHelper
    */
     public function checkCurrencyCondition()
     {
-        return $this->enabledCurrency ? '<li>' . t('Order currency') . ' - '
-        . t(
+        return $this->enabledCurrency ? '<li>' . $this->t('Order currency') . ' - '
+        . $this->t(
             $this->currencyType
         ) . '</li>' : '';
     }

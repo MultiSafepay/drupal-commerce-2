@@ -8,10 +8,10 @@ use Drupal\commerce_multisafepay_payments\Helpers\OrderHelper;
 use Drupal\commerce_order\Entity\Order;
 use Drupal\commerce_payment\Entity\PaymentGateway;
 use Drupal\Core\Controller\ControllerBase;
+use Drupal\Core\Entity\EntityStorageException;
 use Drupal\Core\Url;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 
 class SecondChanceController extends ControllerBase
 {
@@ -26,45 +26,59 @@ class SecondChanceController extends ControllerBase
         $this->apiHelper = new ApiHelper();
     }
 
-    /**
-     * Returns a render-able array for a test page.
-     */
-    public function content(Request $request)
+  /**
+   * Returns a render-able array for a test page.
+   * @throws EntityStorageException
+   */
+    public function content(Request $request): RedirectResponse
     {
+        $redirect_url = new RedirectResponse($this->buildReturnUrl($request)->toString());
+        $supportSentence = 'Please, can you create a new order? Otherwise, contact the support team.';
+
         if (!$this->isAccessValid($request)) {
-            return new Response('', 403);
+            $this->messenger()->addError($this->t(
+                'Invalid Transaction ID. @supportSentence',
+                ['@supportSentence' => $supportSentence]
+            ));
+            return $redirect_url;
         }
 
         $transactionId = $request->get('transactionid');
         $order = Order::load($transactionId);
-        $currentState = $order->getState()->getValue()['value'];
-
-        // Nothing have to be changed and is currently untouched by MultiSafepay, redirect for now
-        if ($currentState === 'draft') {
-            return new RedirectResponse($this->buildReturnUrl($request)->toString());
-        }
-
-        // If the order is not canceled, we can consider it an invalid request.
-        if ($currentState !== 'canceled') {
-            return new Response('', 403);
+        if (is_null($order)) {
+            $this->messenger()->addError($this->t(
+                'Invalid Order. @supportSentence',
+                ['@supportSentence' => $supportSentence]
+            ));
+            return $redirect_url;
         }
 
         $mode = $this->gatewayHelper->getGatewayMode($order);
         $this->apiHelper->setApiSettings($this->client, $mode);
         $multiSafepayOrder = $this->client->orders->get('orders', $transactionId);
 
-        if (in_array($multiSafepayOrder->status, [OrderHelper::MSP_COMPLETED, OrderHelper::MSP_INIT])) {
-            // if the order is completed or initialized, we can move the order to the first workflow state
-            $order->getState()->applyDefaultValue();
+        if (in_array((string) $multiSafepayOrder->status, [OrderHelper::MSP_COMPLETED, OrderHelper::MSP_INIT], true)) {
+            // If the order is completed or initialized, we can move the order to the first workflow state
+            $getState = $order->getState();
+            if (!is_null($getState)) {
+                $getState->applyDefaultValue();
+            }
             $order->save();
-            return new RedirectResponse($this->buildReturnUrl($request)->toString());
+            return $redirect_url;
         }
 
-        //If the order is canceled at Drupal and not but not yet paid at MultiSafepay, we can consider it not done yet.
-        return new Response('', 403);
+          // Get the gateway used for the order
+          $gatewayOrder = !empty($multiSafepayOrder->payment_details) ? ' using ' . $multiSafepayOrder->payment_details->type : '';
+          // If the gateway is not found, we will not show the gateway in the message
+          $message = $this->t(
+              'There was a problem with the transaction@gateway. @supportSentence',
+              ['@gateway' => $gatewayOrder, '@supportSentence' => $supportSentence]
+          );
+          $this->messenger()->addError($message);
+          return $redirect_url;
     }
 
-    protected function buildReturnUrl(Request $request)
+    protected function buildReturnUrl(Request $request): Url
     {
         return Url::fromRoute('commerce_payment.checkout.return', [
             'commerce_order' => $request->get('transactionid'),

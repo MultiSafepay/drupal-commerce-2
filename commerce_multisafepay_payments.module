@@ -28,7 +28,6 @@ function commerce_multisafepay_payments_form_alter(
     }
 
     if ($form['#step_id'] == 'order_information') {
-        $name = null;
       /** @var \Drupal\commerce_payment\PaymentOption $payment_option */
         foreach ($form['payment_information']['#payment_options'] as $payment_option) {
           /** @var \Drupal\Core\Config\ImmutableConfig $config */

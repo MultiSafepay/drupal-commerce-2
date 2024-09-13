@@ -1,5 +1,5 @@
 <?php declare(strict_types=1);
-namespace Drupal\commerce_multisafepay_payments\API\Object;
+namespace Drupal\commerce_multisafepay_payments\API\Objects;
 
 use Drupal\commerce_multisafepay_payments\API\Client;
 use Drupal\commerce_multisafepay_payments\Exceptions\ExceptionHelper;
@@ -77,7 +77,8 @@ class Core
             $json
         );
         $exceptionHelper = new ExceptionHelper();
-        if (!($object = @json_decode($body))) {
+        $object = @json_decode($body);
+        if (!$object) {
             $exceptionHelper->paymentGatewayException($body);
         }
 

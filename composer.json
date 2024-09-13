@@ -1,11 +1,11 @@
 {
     "name": "drupal/commerce_multisafepay_payments",
-    "description": "Drupal Commerce 2.x MultiSafepay integration",
+    "description": "Drupal Commerce 2.3.x MultiSafepay integration",
     "type": "drupal-module",
-    "homepage": "http://drupal.org/project/commerce_multisafepay_payments",
+    "homepage": "https://drupal.org/project/commerce_multisafepay_payments",
     "require": {
-        "drupal/commerce": "~2.0",
-        "drupal/core": "^8.8 || ^9.4.3"
+        "drupal/commerce": "^2.39",
+        "drupal/core": "^8.8 || ^9.4 || 10.*"
     },
     "repositories": [
         {
@@ -14,8 +14,9 @@
         }
     ],
     "minimum-stability": "dev",
+    "prefer-stable": true,
     "require-dev": {
-        "drupal/coder": "~8.3",
+        "drupal/coder": "^8.3.x-dev",
         "multisafepay/coding-standards": "dev-master"
     },
     "config": {

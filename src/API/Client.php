@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 namespace Drupal\commerce_multisafepay_payments\API;
 
-use Drupal\commerce_multisafepay_payments\API\Object\Gateways;
-use Drupal\commerce_multisafepay_payments\API\Object\Issuers;
-use Drupal\commerce_multisafepay_payments\API\Object\Orders;
+use Drupal\commerce_multisafepay_payments\API\Objects\Gateways;
+use Drupal\commerce_multisafepay_payments\API\Objects\Issuers;
+use Drupal\commerce_multisafepay_payments\API\Objects\Orders;
 use Drupal\commerce_multisafepay_payments\Exceptions\ExceptionHelper;
 
 /**
@@ -15,19 +15,19 @@ class Client
   /**
    * MSP Orders.
    *
-   * @var \Drupal\commerce_multisafepay_payments\API\Object\Orders
+   * @var \Drupal\commerce_multisafepay_payments\API\Objects\Orders
    */
     public $orders;
 
   /**
    * MSP issuers.
    *
-   * @var \Drupal\commerce_multisafepay_payments\API\Object\Issuers
+   * @var \Drupal\commerce_multisafepay_payments\API\Objects\Issuers
    */
     public $issuers;
 
   /**
-   * Object.
+   * Objects.
    *
    * @var object
    */
@@ -36,7 +36,7 @@ class Client
   /**
    * MSP gateways.
    *
-   * @var \Drupal\commerce_multisafepay_payments\API\Object\Gateways
+   * @var \Drupal\commerce_multisafepay_payments\API\Objects\Gateways
    */
     public $gateways;
 
@@ -198,7 +198,7 @@ class Client
         curl_setopt($ch, CURLOPT_ENCODING, "");
         curl_setopt($ch, CURLOPT_TIMEOUT, 120);
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 1);
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $http_method);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $request_headers);
 

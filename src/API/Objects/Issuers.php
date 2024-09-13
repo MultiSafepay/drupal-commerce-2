@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
-namespace Drupal\commerce_multisafepay_payments\API\Object;
+namespace Drupal\commerce_multisafepay_payments\API\Objects;
 
 /**
- * Class Gateways.
+ * Class Issuers.
  */
-class Gateways extends Core
+class Issuers extends Core
 {
 
   /**
@@ -22,32 +22,28 @@ class Gateways extends Core
     public $data;
 
   /**
-   * Create predefined GET gateways request.
+   * Create predefined GET Issuers request.
    *
    * @param string $endpoint
    *   Endpoint.
    * @param string $type
    *   Type.
    * @param array $body
-   *   The request.
+   *   Data send to MSP.
    * @param bool $query_string
-   *   How url should be handled.
+   *   How the url should be created.
    *
    * @return mixed
-   *   Process get request
+   *   Get the issuers
    */
     public function get(
-        $endpoint = 'gateways',
-        $type = '',
+        $endpoint = 'issuers',
+        $type = 'ideal',
         array $body = [],
         $query_string = false
     ) {
-        $result = parent::get(
-            $endpoint,
-            $type,
-            $body,
-            $query_string
-        );
+
+        $result = parent::get($endpoint, $type, $body, $query_string);
         $this->success = $result->success;
         $this->data = $result->data;
 

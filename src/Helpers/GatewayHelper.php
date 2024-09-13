@@ -4,6 +4,7 @@ namespace Drupal\commerce_multisafepay_payments\Helpers;
 use Drupal\commerce_order\Entity\OrderInterface;
 use Drupal\commerce_payment\Entity\PaymentGateway;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
+use Drupal\Core\TypedData\Exception\MissingDataException;
 
 /**
  * Class GatewayHelper.
@@ -13,7 +14,7 @@ class GatewayHelper
 
     use StringTranslationTrait;
 
-    const MSP_GATEWAYS = [
+    public const MSP_GATEWAYS = [
     'gateways' => [
       // Redirects.
       'msp_directbanktransfer'       => [
@@ -368,15 +369,17 @@ class GatewayHelper
   /**
    * Get the gateway mode from the order.
    *
-   * @param \Drupal\commerce_order\Entity\OrderInterface $order
+   * @param \Drupal\commerce_order\Entity\OrderInterface  $order
    *   Order.
    *
    * @return string
    *   Get Gateway mode (test / n/a / live)
+   *
+   * @throws MissingDataException
    */
     public function getGatewayMode(OrderInterface $order)
     {
-        return $order->get('payment_gateway')->first()->entity->get(
+        return $order->get('payment_gateway')->first()->get('entity')->getValue()->get(
             'configuration'
         )['mode'];
     }

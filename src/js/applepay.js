@@ -1,8 +1,8 @@
 Drupal.behaviors.formUpdated = {
-    attach: function attach(context)
+    attach: function attach()
     {
-        var applePayName = drupalSettings.commerce_multisafepay_payments.applepay.name;
-        var applePayBlock = document.querySelector('input[value="' + applePayName + '"]').parentElement;
+        const applePayName = drupalSettings.commerce_multisafepay_payments.applepay.name;
+        const applePayBlock = document.querySelector('input[value="' + applePayName + '"]').parentElement;
         applePayBlock.style.display = 'none';
 
         try {

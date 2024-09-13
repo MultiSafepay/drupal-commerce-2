@@ -10,6 +10,7 @@ use Drupal\commerce_payment\Entity\Payment;
 use Drupal\commerce_price\Price;
 use Drupal\commerce_shipping\Plugin\Commerce\ShippingMethod\FlatRatePerItem;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
+use Drupal\Core\TypedData\Exception\MissingDataException;
 use Drupal\Core\Url;
 
 /**
@@ -20,34 +21,34 @@ class OrderHelper
 
     use StringTranslationTrait;
 
-    const MSP_COMPLETED = "completed";
+    public const MSP_COMPLETED = "completed";
 
-    const MSP_INIT = "initialized";
+    public const MSP_INIT = "initialized";
 
-    const MSP_UNCLEARED = "uncleared";
+    public const MSP_UNCLEARED = "uncleared";
 
-    const MSP_VOID = "void";
+    public const MSP_VOID = "void";
 
-    const MSP_DECLINED = "declined";
+    public const MSP_DECLINED = "declined";
 
-    const MSP_EXPIRED = "expired";
+    public const MSP_EXPIRED = "expired";
 
-    const MSP_CANCELLED = "cancelled";
+    public const MSP_CANCELLED = "cancelled";
 
-    const MSP_REFUNDED = "refunded";
+    public const MSP_REFUNDED = "refunded";
 
-    const MSP_PARTIAL_REFUNDED = "partial_refunded";
+    public const MSP_PARTIAL_REFUNDED = "partial_refunded";
 
-    const AUTHORIZATION = "authorization";
+    public const AUTHORIZATION = "authorization";
 
   // Drupal Commerce Only.
-    const PARTIALLY_REFUNDED = "partially_refunded";
+    public const PARTIALLY_REFUNDED = "partially_refunded";
 
-    const AUTHORIZATION_EXPIRED = "authorization_expired";
+    public const AUTHORIZATION_EXPIRED = "authorization_expired";
 
-    const AUTHORIZATION_VOIDED = "authorization_voided";
+    public const AUTHORIZATION_VOIDED = "authorization_voided";
 
-    const NEW = "new";
+    public const NEW = "new";
 
   /**
    * Set discount so we can use it anywhere.
@@ -265,7 +266,7 @@ class OrderHelper
         "plugin"           => [
         "shop"           => "Drupal: {$drupalVersion}, Commerce: {$commerceVersion}",
         "shop_version"   => "Drupal: {$drupalVersion}, Commerce: {$commerceVersion}",
-        "plugin_version" => " - Plugin: {$pluginVersion}",
+        "plugin_version" => $pluginVersion,
         "partner"        => "MultiSafepay",
         ],
         ];
@@ -309,17 +310,19 @@ class OrderHelper
   /**
    * Get MSP gateway options form the order.
    *
-   * @param \Drupal\commerce_order\Entity\OrderInterface $order
+   * @param \Drupal\commerce_order\Entity\OrderInterface  $order
    *   Order.
    *
    * @return mixed
    *   the gateway options
+   *
+   * @throws MissingDataException
    */
     public function getGatewayHelperOptions(OrderInterface $order)
     {
 
       // Get the gateway id.
-        $gatewayId = $order->get('payment_gateway')->first()->entity->getPluginId();
+        $gatewayId = $order->get('payment_gateway')->first()->get('entity')->getValue()->getPluginId();
 
       // Get the msp gateway options.
         $gatewayOptions = GatewayHelper::MSP_GATEWAYS['gateways'][$gatewayId];
@@ -534,7 +537,7 @@ class OrderHelper
         ];
 
       // Go through all items and put them in a array for the API.
-        foreach ($orderItems as $key => $orderItem) {
+        foreach ($orderItems as $orderItem) {
           // Add quantity total to $totalOrderedProducts.
             $totalOrderedProducts += $orderItem->getQuantity();
 
@@ -972,10 +975,12 @@ class OrderHelper
   /**
    * Logs MSP order related actions of the order.
    *
-   * @param \Drupal\commerce_order\Entity\OrderInterface $order
+   * @param \Drupal\commerce_order\Entity\OrderInterface  $order
    *   Order.
    * @param string $log
    *   What should be logged.
+   *
+   * @throws MissingDataException
    */
     public function logMsp(OrderInterface $order, $log)
     {
@@ -988,7 +993,7 @@ class OrderHelper
 
         $orderId = $orderNumber = $order->getOrderNumber() ?: $order->id();
         $mspOrder = $client->orders->get('orders', $orderId);
-        $gateway = $order->get('payment_gateway')->first()->entity;
+        $gateway = $order->get('payment_gateway')->first()->get('entity')->getValue();
 
         $this->logStorage->generate($order, $log)->setParams(
             [

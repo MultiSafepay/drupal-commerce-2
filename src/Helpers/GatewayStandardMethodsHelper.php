@@ -14,6 +14,7 @@ use Drupal\commerce_payment\Plugin\Commerce\PaymentGateway\SupportsNotifications
 use Drupal\commerce_price\Price;
 use Drupal\Component\Datetime\TimeInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\TypedData\Exception\MissingDataException;
 use Drupal\state_machine\Plugin\Field\FieldType\StateItem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -163,12 +164,10 @@ class GatewayStandardMethodsHelper extends OffsitePaymentGatewayBase implements
                 $stateItem->applyTransition(current($stateItem->getTransitions()));
             }
 
-
             $currentState = $stateItem->getValue();
+
             // Check if the order has reached the final to last step, even after the re-opening of the order.
             // If so, don't update the order
-
-
             if ($currentState['value'] === 'fulfillment') {
                 $this->logger->debug('Order state is currently fulfillment, don\'t update the status');
                 return;
@@ -186,20 +185,22 @@ class GatewayStandardMethodsHelper extends OffsitePaymentGatewayBase implements
   /**
    * Get the MultiSafepay order.
    *
-   * @param \Drupal\commerce_order\Entity\OrderInterface $order
+   * @param \Drupal\commerce_order\Entity\OrderInterface  $order
    *   The order.
    * @param int $transactionId
    *   Order id.
    *
    * @return mixed|\Symfony\Component\HttpFoundation\Response
    *   Response given to MSP MCP or get order if gateway is from MSP
+   *
+   * @throws MissingDataException
    */
     public function getMspOrder(OrderInterface $order, $transactionId)
     {
         $client = new Client();
 
       // Get current gateway & Check if it is a MSP gateway.
-        $gateway = $order->get('payment_gateway')->first()->entity;
+        $gateway = $order->get('payment_gateway')->first()->get('entity')->getValue();
         if (!$this->mspGatewayHelper->isMspGateway($gateway->getPluginId())) {
             return new Response("Non MSP order");
         }
@@ -216,11 +217,13 @@ class GatewayStandardMethodsHelper extends OffsitePaymentGatewayBase implements
   /**
    * Set the behavior when you get a notification back form the API.
    *
-   * @param \Symfony\Component\HttpFoundation\Request $request
+   * @param \Symfony\Component\HttpFoundation\Request  $request
    *   Url get data.
    *
    * @return \Symfony\Component\HttpFoundation\Response
    *   The Response given to MSP MCP
+   *
+   * @throws MissingDataException
    */
     public function onNotify(Request $request)
     {
@@ -246,15 +249,16 @@ class GatewayStandardMethodsHelper extends OffsitePaymentGatewayBase implements
         $this->logger->debug('Found order for transaction ID #' . $transactionId);
 
         // Get payment gateway.
-        $gateway = $order->get('payment_gateway')->first()->entity;
+        $gateway = $order->get('payment_gateway')->first()->get('entity')->getValue();
         $this->logger->debug('Finding gateway for transaction ID #' . $transactionId);
 
         // Get the MSP order & check if payment details has been found.
         $mspOrder = $this->getMspOrder($order, $transactionId);
         $this->logger->debug('Finding MultiSafepay order for transaction ID #' . $transactionId);
 
-        if (!isset($mspOrder->payment_details)) {
-            $this->logger->debug('Could\'t find MultiSafepay order for transaction ID #' . $transactionId);
+        $paymentDetails = $mspOrder->payment_details ?? null;
+        if (is_null($paymentDetails)) {
+            $this->logger->debug('Could not find MultiSafepay order for transaction ID #' . $transactionId);
             return new Response("No payment details found");
         }
 
@@ -291,7 +295,7 @@ class GatewayStandardMethodsHelper extends OffsitePaymentGatewayBase implements
   /**
    * Create and/or get payment.
    *
-   * @param \Drupal\commerce_order\Entity\OrderInterface $order
+   * @param \Drupal\commerce_order\Entity\OrderInterface  $order
    *   The order.
    * @param object $mspOrder
    *   MultiSafepay order data.
@@ -299,7 +303,7 @@ class GatewayStandardMethodsHelper extends OffsitePaymentGatewayBase implements
    * @return object
    *   Load the payment
    *
-   * @throws \Drupal\Core\Entity\EntityStorageException
+   * @throws \Drupal\Core\Entity\EntityStorageException|MissingDataException
    */
     public function createPayment(OrderInterface $order, $mspOrder)
     {
@@ -307,7 +311,7 @@ class GatewayStandardMethodsHelper extends OffsitePaymentGatewayBase implements
         $mspAmount = $mspOrder->amount / 100;
 
       // Get payment gateway.
-        $gateway = $order->get('payment_gateway')->first()->entity;
+        $gateway = $order->get('payment_gateway')->first()->get('entity')->getValue();
 
       // If payment already exist, else create a new payment.
         if (is_null(
@@ -424,11 +428,13 @@ class GatewayStandardMethodsHelper extends OffsitePaymentGatewayBase implements
    */
     public function getOrderFromOrderNumber($transactionId)
     {
-        if (!$orders = $this->entityTypeManager->getStorage('commerce_order')->loadByProperties(['order_number' => $transactionId])) {
+        $orders = $this->entityTypeManager->getStorage('commerce_order')->loadByProperties(['order_number' => $transactionId]);
+        if (!$orders) {
             return null;
         }
 
-        if (!$order = reset($orders)) {
+        $order = reset($orders);
+        if (!$order) {
             return null;
         }
 
