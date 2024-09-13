@@ -1,3 +1,14 @@
+## 4.0.0
+Release date: Sep 13th, 2024
+
+### Added
++ PLGDC8-76: Drupal 10 support
+
+### Removed
++ PLGDC8-75: Drop support for versions between 9.0.0 and 9.4.2 because of security issues
+
+***
+
 ## 3.1.0
 Release date: Mar 22nd, 2023
 
