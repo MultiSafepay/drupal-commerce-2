@@ -135,6 +135,11 @@ class GatewayHelper
 
 
       // Direct.
+      'msp_bizum'                  => [
+          'code'          => 'BIZUM',
+          'type'          => 'direct',
+          'shopping_cart' => false,
+      ],
       'msp_cbc'                      => [
         'code'          => 'CBC',
         'type'          => 'direct',
