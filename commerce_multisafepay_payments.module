@@ -40,24 +40,4 @@ function commerce_multisafepay_payments_form_alter(
             }
         }
     }
-  // Check if the page is on review page.
-    if ($form['#step_id'] == 'review') {
-      // Get Build info.
-        $buildInfo = $formState->getBuildInfo();
-
-      // Get Order.
-        $order = $buildInfo['callback_object']->getOrder();
-
-      // Get the Gateway.
-        $paymentGateway = $order->payment_gateway->entity;
-
-      // Check if the payment method is msp_ideal.
-        if (isset($paymentGateway)
-        && $paymentGateway->getPluginId() === 'msp_ideal'
-        ) {
-            $form['actions']['next']['#value'] = t(
-                'Proceed to next step to choose your bank'
-            );
-        }
-    }
 }
