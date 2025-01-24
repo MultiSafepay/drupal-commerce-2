@@ -42,6 +42,11 @@ class GatewayHelper
         'type'          => 'redirect',
         'shopping_cart' => false,
       ],
+      'msp_billink'                     => [
+          'code'          => 'BILLINK',
+          'type'          => 'redirect',
+          'shopping_cart' => true,
+      ],
       'msp_dirdeb'                   => [
         'code'          => 'DIRDEB',
         'type'          => 'redirect',
