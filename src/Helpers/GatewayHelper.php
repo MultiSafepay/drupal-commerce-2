@@ -170,8 +170,8 @@ class GatewayHelper
         'type'          => 'direct',
         'shopping_cart' => false,
       ],
-      'msp_alipay'                   => [
-        'code'          => 'ALIPAY',
+      'msp_alipayplus'               => [
+        'code'          => 'ALIPAYPLUS',
         'type'          => 'direct',
         'shopping_cart' => false,
       ],

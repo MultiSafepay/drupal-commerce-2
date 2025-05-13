@@ -4,6 +4,13 @@
     <description>MultiSafepay coding styles rules</description>
     <exclude-pattern>*/vendor/*</exclude-pattern>
     <rule ref="./vendor/multisafepay/coding-standards/php71.phpcs.xml"/>
+    <rule ref="SlevomatCodingStandard.TypeHints.DeclareStrictTypes">
+        <properties>
+            <property name="spacesCountAroundEqualsSign" value="0" type="int" />
+            <property name="linesCountBeforeDeclare" value="1" type="int" />
+            <property name="linesCountAfterDeclare" value="0" type="int" />
+        </properties>
+    </rule>
     <rule ref="DrupalPractice">
         <exclude name="DrupalPractice.CodeAnalysis.VariableAnalysis.UnusedVariable"/>
     </rule>

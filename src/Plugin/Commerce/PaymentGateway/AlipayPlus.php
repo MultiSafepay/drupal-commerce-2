@@ -8,9 +8,9 @@ use Drupal\commerce_payment\Plugin\Commerce\PaymentGateway\SupportsRefundsInterf
  * Provides the Off-site payment gateway.
  *
  * @CommercePaymentGateway(
- *   id = "msp_alipay",
- *   label = "MultiSafepay (Alipay)",
- *   display_label = "Alipay",
+ *   id = "msp_alipayplus",
+ *   label = "MultiSafepay (Alipay+)",
+ *   display_label = "Alipay+",
  *   modes = {
  *     "n/a" = @Translation("N/A"),
  *   },
@@ -20,7 +20,7 @@ use Drupal\commerce_payment\Plugin\Commerce\PaymentGateway\SupportsRefundsInterf
  *   },
  * )
  */
-class Alipay extends GatewayStandardMethodsHelper implements
+class AlipayPlus extends GatewayStandardMethodsHelper implements
     SupportsRefundsInterface
 {
 
