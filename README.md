@@ -17,7 +17,7 @@ See MultiSafepay Docs – [Drupal](https://docs.multisafepay.com/docs/drupal) > 
 ## Prerequisites
 
 - You will need a [MultiSafepay account](https://testmerchant.multisafepay.com/signup). Consider a test account first.
-- Drupal 8.8.x or 9.x
+- Drupal 8.8.x or 9.x or 10.x
 - Drupal Commerce 2.x
 
 ## Installation

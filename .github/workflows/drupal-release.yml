@@ -1,0 +1,74 @@
+name: Sync to Drupal.org
+
+on:
+  push:
+    tags:
+      - '*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'GitHub tag to test (e.g., 4.0.0)'
+        required: true
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Determine tag or branch to use
+        id: vars
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            REF="${{ github.event.inputs.version }}"
+          elif [[ "${GITHUB_REF}" == refs/tags/* ]]; then
+            REF="${GITHUB_REF##refs/tags/}"
+          else
+            REF="master"
+          fi
+          echo "ref=$REF" >> "$GITHUB_OUTPUT"
+          echo "Will use ref: $REF"
+
+      - name: Checkout code from GitHub
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.vars.outputs.ref }}
+          fetch-depth: 0
+
+      - name: Set up Git
+        run: |
+          git config --global user.name "MultiSafepay"
+          git config --global user.email "plugin.group@multisafepay.com"
+
+      - name: Show current working tree
+        run: |
+          echo "Files in working directory:"
+          git status
+
+      - name: Set up SSH for Drupal.org
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.DRUPAL_ORG_SSH_PRIVATE_KEY }}
+
+      - name: Add git.drupal.org to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -t rsa git.drupal.org >> ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
+
+      - name: Add Drupal.org remote
+        run: |
+          git remote add drupalorg git@git.drupal.org:project/commerce_multisafepay_payments.git
+          git remote -v
+
+      - name: Push current HEAD to drupalorg:2.x
+        run: |
+          echo "Pushing current HEAD to drupalorg:2.x..."
+          git push --force drupalorg HEAD:2.x
+
+      - name: Push tag to drupalorg (if tag event)
+        if: |
+          startsWith(github.ref, 'refs/tags/') || 
+          (github.event_name == 'workflow_dispatch' && steps.vars.outputs.ref != '')
+        run: |
+          echo "Pushing tag ${{ steps.vars.outputs.ref }} to drupalorg..."
+          git push --force drupalorg ${{ steps.vars.outputs.ref }}
