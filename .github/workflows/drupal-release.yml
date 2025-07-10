@@ -4,26 +4,20 @@ on:
   push:
     tags:
       - '*'
-  workflow_dispatch:
-    inputs:
-      version:
-        description: 'GitHub tag to test (e.g., 4.0.0)'
-        required: true
 
 jobs:
   sync:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Determine tag or branch to use
+      - name: Determine tag to use
         id: vars
         run: |
-          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            REF="${{ github.event.inputs.version }}"
-          elif [[ "${GITHUB_REF}" == refs/tags/* ]]; then
+          if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
             REF="${GITHUB_REF##refs/tags/}"
           else
-            REF="master"
+            echo "This workflow should only run on tag pushes."
+            exit 1
           fi
           echo "ref=$REF" >> "$GITHUB_OUTPUT"
           echo "Will use ref: $REF"
@@ -60,15 +54,12 @@ jobs:
           git remote add drupalorg git@git.drupal.org:project/commerce_multisafepay_payments.git
           git remote -v
 
-      - name: Push current HEAD to drupalorg:2.x
+      - name: Push HEAD (tag commit) to drupalorg:2.x
         run: |
-          echo "Pushing current HEAD to drupalorg:2.x..."
+          echo "Pushing HEAD to drupalorg:2.x..."
           git push --force drupalorg HEAD:2.x
 
-      - name: Push tag to drupalorg (if tag event)
-        if: |
-          startsWith(github.ref, 'refs/tags/') || 
-          (github.event_name == 'workflow_dispatch' && steps.vars.outputs.ref != '')
+      - name: Push tag to drupalorg
         run: |
           echo "Pushing tag ${{ steps.vars.outputs.ref }} to drupalorg..."
           git push --force drupalorg ${{ steps.vars.outputs.ref }}
