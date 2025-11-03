@@ -28,15 +28,17 @@ function commerce_multisafepay_payments_form_alter(
     }
 
     if ($form['#step_id'] == 'order_information') {
-      /** @var \Drupal\commerce_payment\PaymentOption $payment_option */
-        foreach ($form['payment_information']['#payment_options'] as $payment_option) {
-          /** @var \Drupal\Core\Config\ImmutableConfig $config */
-            $config = \Drupal::config('commerce_payment.commerce_payment_gateway.' . $payment_option->getId());
-            if ('msp_applepay' == $config->get('plugin')) {
-                $form['#attached']['library'][] = 'commerce_multisafepay_payments/applepay';
-                $computed_settings['name'] = $payment_option->getId();
-                $form['#attached']['drupalSettings']['commerce_multisafepay_payments']['applepay'] = $computed_settings;
-                break;
+        if (isset($form['payment_information']['#payment_options'])) {
+            /** @var \Drupal\commerce_payment\PaymentOption $payment_option */
+            foreach ($form['payment_information']['#payment_options'] as $payment_option) {
+                /** @var \Drupal\Core\Config\ImmutableConfig $config */
+                $config = \Drupal::config('commerce_payment.commerce_payment_gateway.' . $payment_option->getId());
+                if ('msp_applepay' == $config->get('plugin')) {
+                    $form['#attached']['library'][] = 'commerce_multisafepay_payments/applepay';
+                    $computed_settings['name'] = $payment_option->getId();
+                    $form['#attached']['drupalSettings']['commerce_multisafepay_payments']['applepay'] = $computed_settings;
+                    break;
+                }
             }
         }
     }

@@ -1,6 +1,8 @@
 {
     "name": "drupal/commerce_multisafepay_payments",
-    "description": "Drupal Commerce 2.3.x MultiSafepay integration",
+    "description": "Drupal Commerce MultiSafepay integration",
+    "version": "4.1.0",
+    "keywords" : [ "drupal", "drupal commerce", "commerce", "multisafepay" ],
     "type": "drupal-module",
     "homepage": "https://drupal.org/project/commerce_multisafepay_payments",
     "require": {

@@ -1,3 +1,27 @@
+# Changelog
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+***
+
+## 4.1.0
+Release date: Jul 11th, 2025
+
+### Added
++ PLGDC8-85: Drupal release action
++ DAVAMS-851: Add BILLINK
++ DAVAMS-830: Add Bizum
+
+### Removed
++ DAVAMS-894: Remove ALIPAY payment method
+
+### Changed
++ PLGDC8-82: Remove iDEAL issuers
+
+***
+
 ## 4.0.0
 Release date: Sep 13th, 2024
 
@@ -19,7 +43,7 @@ Release date: Mar 22nd, 2023
 ### Fixed
 + Fix empty profile support - Issue [#3221601](https://www.drupal.org/project/commerce_multisafepay_payments/issues/3221601) by [Mykola Dolynskyi](https://www.drupal.org/u/mykola-dolynskyi)
 
-*** 
+***
 
 ## 3.0.0
 Release date: Mar 19th, 2021
