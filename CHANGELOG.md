@@ -7,15 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ***
 
 ## 4.1.0
-Release date: Jul 11th, 2025
+Release date: Nov 3rd, 2025
 
 ### Added
++ PLGDC8-90: Support for Drupal Commerce 3
++ PLGDC8-90: Support Drupal 11
 + PLGDC8-85: Drupal release action
 + DAVAMS-851: Add BILLINK
-+ DAVAMS-830: Add Bizum
++ DAVAMS-830: Add Bizum]()
 
 ### Removed
 + DAVAMS-894: Remove ALIPAY payment method
++ DAVAMS-933: Remove Sofort
 
 ### Changed
 + PLGDC8-82: Remove iDEAL issuers
