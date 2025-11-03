@@ -97,11 +97,6 @@ class GatewayHelper
         'type'          => 'redirect',
         'shopping_cart' => false,
       ],
-      'msp_directbank'               => [
-        'code'          => 'DIRECTBANK',
-        'type'          => 'redirect',
-        'shopping_cart' => false,
-      ],
       'msp_trustpay'                 => [
         'code'          => 'TRUSTPAY',
         'type'          => 'redirect',
