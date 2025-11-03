@@ -11,75 +11,75 @@ class ConditionHelper
 
     use StringTranslationTrait;
 
-  /**
-   * Get value of enabled Total.
-   *
-   * @var object
-   */
+    /**
+     * Get value of enabled Total.
+     *
+     * @var object
+     */
     protected $enabledTotal;
 
-  /**
-   * Get value of $currencyType.
-   *
-   * @var object
-   */
+    /**
+     * Get value of $currencyType.
+     *
+     * @var object
+     */
     protected $enabledCurrency;
 
-  /**
-   * Get value of $currencyType.
-   *
-   * @var object
-   */
+    /**
+     * Get value of $currencyType.
+     *
+     * @var object
+     */
     protected $currencyType;
 
-  /**
-   * Sets the Order amount condition.
-   *
-   * @param string $operator
-   *   Type of operator (example: lesser than = <,
-   *   greater than = > etc)
-   * @param float $amount
-   *   The amount.
-   * @param string $currency
-   *   Type of currency (USD, EUR)
-   *
-   * @return array
-   *   Created rule
-   */
+    /**
+     * Sets the Order amount condition.
+     *
+     * @param string $operator
+     *   Type of operator (example: lesser than = <,
+     *   greater than = > etc)
+     * @param float $amount
+     *   The amount.
+     * @param string $currency
+     *   Type of currency (USD, EUR)
+     *
+     * @return array
+     *   Created rule
+     */
     public function orderTotalCondition($operator, $amount, $currency)
     {
 
-      // Create a condition.
+        // Create a condition.
         $condition = [
-        'conditions' => [
-        [
-          'plugin'        => 'order_total_price',
-          'configuration' => [
-            'operator' => $operator,
-            'amount'   => [
-              'number'        => $amount,
-              'currency_code' => $currency,
+            'conditions' => [
+                [
+                    'plugin' => 'order_total_price',
+                    'configuration' => [
+                        'operator' => $operator,
+                        'amount' => [
+                            'number' => $amount,
+                            'currency_code' => $currency,
+                        ],
+                    ],
+                ],
             ],
-          ],
-        ],
-        ],
         ];
 
-      // Set enabled TRUE because we use it.
+        // Set enabled TRUE because we use it.
         $this->enabledTotal = true;
 
         return $condition;
     }
 
-  /**
-   * Set the currency to this so we can use it in the messages.
-   *
-   * @param string $currency
-   *   Sets the currency type.
-   *
-   * @return bool
-   *   Created rule
-   */
+    /**
+     * Set the currency to this so we can use it in the messages.
+     *
+     * @param string $currency
+     *   Sets the currency type.
+     *
+     * @return bool
+     *   Created rule
+     */
     public function orderCurrencyCondition($currency)
     {
         $this->currencyType = $currency;
@@ -87,34 +87,34 @@ class ConditionHelper
         return true;
     }
 
-  /**
-   * Sets the message of the condition.
-   *
-   * @return array
-   *   Created message
-   */
+    /**
+     * Sets the message of the condition.
+     *
+     * @return array
+     *   Created message
+     */
     public function orderConditionMessage()
     {
         $message = $this->t(
             'This gateway contains a restriction. To enable it please click on Order and Enable:'
         );
 
-      // Set styling.
+        // Set styling.
         $form['styling'] = [
-        '#type'  => 'html_tag',
-        '#tag'   => 'style',
-        '#value' => '
+            '#type' => 'html_tag',
+            '#tag' => 'style',
+            '#value' => '
                 h3, li {
                     color: #0074bd;
                 }
        ',
         ];
 
-      // Set message.
+        // Set message.
         $form['details'] = [
-        '#type'  => 'html_tag',
-        '#tag'   => 'b',
-        '#value' => '
+            '#type' => 'html_tag',
+            '#tag' => 'b',
+            '#value' => '
             <h3>' . $message . '</h3>
             <ul>
                 ' . $this->checkTotalCondition() . '
@@ -126,29 +126,29 @@ class ConditionHelper
         return $form;
     }
 
-  /**
-   * Sets the message of the condition.
-   *
-   * @return string
-   *   Created message
-   */
+    /**
+     * Sets the message of the condition.
+     *
+     * @return string
+     *   Created message
+     */
     public function checkTotalCondition()
     {
         return $this->enabledTotal ? '<li>' . $this->t('Current order total') . '</li>'
-        : '';
+            : '';
     }
 
-  /**
-   * Sets the message of the condition.
-   *
-   * @return string
-   *   Created message
-   */
+    /**
+     * Sets the message of the condition.
+     *
+     * @return string
+     *   Created message
+     */
     public function checkCurrencyCondition()
     {
         return $this->enabledCurrency ? '<li>' . $this->t('Order currency') . ' - '
-        . $this->t(
-            $this->currencyType
-        ) . '</li>' : '';
+            . $this->t(
+                $this->currencyType
+            ) . '</li>' : '';
     }
 }

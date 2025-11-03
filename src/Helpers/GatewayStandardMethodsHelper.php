@@ -30,47 +30,46 @@ use Symfony\Component\HttpFoundation\Response;
 class GatewayStandardMethodsHelper extends OffsitePaymentGatewayBase implements
     SupportsNotificationsInterface
 {
-
-  /**
-   * MultiSafepay Api Helper.
-   *
-   * @var ApiHelper
-   */
+    /**
+     * MultiSafepay Api Helper.
+     *
+     * @var ApiHelper
+     */
     protected $mspApiHelper;
 
-  /**
-   * MultiSafePay Gateway Helper.
-   *
-   * @var GatewayHelper
-   */
+    /**
+     * MultiSafePay Gateway Helper.
+     *
+     * @var GatewayHelper
+     */
     protected $mspGatewayHelper;
 
-  /**
-   * MultiSafepay Order Helper.
-   *
-   * @var \Drupal\commerce_order\Entity\OrderHelper
-   */
+    /**
+     * MultiSafepay Order Helper.
+     *
+     * @var \Drupal\commerce_order\Entity\OrderHelper
+     */
     protected $mspOrderHelper;
 
-  /**
-   * MultiSafepay Condition Helper.
-   *
-   * @var ConditionHelper
-   */
+    /**
+     * MultiSafepay Condition Helper.
+     *
+     * @var ConditionHelper
+     */
     protected $mspConditionHelper;
 
-  /**
-   * ExceptionHelper.
-   *
-   * @var \Drupal\commerce_multisafepay_payments\Exceptions\ExceptionHelper
-   */
+    /**
+     * ExceptionHelper.
+     *
+     * @var \Drupal\commerce_multisafepay_payments\Exceptions\ExceptionHelper
+     */
     protected $exceptionHelper;
 
-  /**
-   * The PaymentStorage System.
-   *
-   * @var object
-   */
+    /**
+     * The PaymentStorage System.
+     *
+     * @var object
+     */
     protected $paymentStorage;
 
     /**
@@ -83,34 +82,34 @@ class GatewayStandardMethodsHelper extends OffsitePaymentGatewayBase implements
     private $logger;
 
     /**
-    * GatewayStandardMethodsHelper constructor.
-    *
-    * @param array $configuration
-    *   Configuration.
-    * @param int $plugin_id
-    *   Plugin id.
-    * @param mixed $plugin_definition
-    *   Plugin definition.
-    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
-    *   Entity type manager.
-    * @param \Drupal\commerce_payment\PaymentTypeManager $payment_type_manager
-    *   Payment type manager.
-    * @param \Drupal\commerce_payment\PaymentMethodTypeManager $payment_method_type_manager
-    *   Payment method type manager.
-    * @param \Drupal\Component\Datetime\TimeInterface $time
-    *   Time.
-    *
-    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
-    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
-    */
+     * GatewayStandardMethodsHelper constructor.
+     *
+     * @param array $configuration
+     *   Configuration.
+     * @param int $plugin_id
+     *   Plugin id.
+     * @param mixed $plugin_definition
+     *   Plugin definition.
+     * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+     *   Entity type manager.
+     * @param \Drupal\commerce_payment\PaymentTypeManager $payment_type_manager
+     *   Payment type manager.
+     * @param \Drupal\commerce_payment\PaymentMethodTypeManager $payment_method_type_manager
+     *   Payment method type manager.
+     * @param \Drupal\Component\Datetime\TimeInterface $time
+     *   Time.
+     *
+     * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+     * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
+     */
     public function __construct(
-        array $configuration,
+        array                      $configuration,
         $plugin_id,
         $plugin_definition,
         EntityTypeManagerInterface $entity_type_manager = null,
-        PaymentTypeManager $payment_type_manager = null,
-        PaymentMethodTypeManager $payment_method_type_manager = null,
-        TimeInterface $time = null
+        PaymentTypeManager         $payment_type_manager = null,
+        PaymentMethodTypeManager   $payment_method_type_manager = null,
+        TimeInterface              $time = null
     ) {
         // Determine if dependencies are being injected via constructor (Commerce 2.x)
         // or will be set via properties after construction (Commerce 3.x)
@@ -204,7 +203,7 @@ class GatewayStandardMethodsHelper extends OffsitePaymentGatewayBase implements
         if ($instance->paymentStorage === null && $instance->entityTypeManager !== null) {
             try {
                 $instance->paymentStorage = $instance->entityTypeManager->getStorage('commerce_payment');
-            } catch (InvalidPluginDefinitionException | PluginNotFoundException $exception) {
+            } catch (InvalidPluginDefinitionException|PluginNotFoundException $exception) {
                 Drupal::logger('commerce_multisafepay_payments')->error(
                     'Unable to initialize payment storage: @message',
                     ['@message' => $exception->getMessage()]
@@ -215,17 +214,17 @@ class GatewayStandardMethodsHelper extends OffsitePaymentGatewayBase implements
         return $instance;
     }
 
-  /**
-   * Set the order in the next workflow step.
-   *
-   * @param \Drupal\commerce_order\Entity\OrderInterface $order
-   *   The order.
-   * @param object $mspOrder
-   *   MultiSafepay data.
-   *
-   * @throws \Drupal\Core\Entity\EntityStorageException
-   * @throws \Drupal\Core\TypedData\Exception\MissingDataException
-   */
+    /**
+     * Set the order in the next workflow step.
+     *
+     * @param \Drupal\commerce_order\Entity\OrderInterface $order
+     *   The order.
+     * @param object $mspOrder
+     *   MultiSafepay data.
+     *
+     * @throws \Drupal\Core\Entity\EntityStorageException
+     * @throws \Drupal\Core\TypedData\Exception\MissingDataException
+     */
     public function transitionOrder(OrderInterface $order, $mspOrder)
     {
         $this->logger->debug('preparing transition order');
@@ -241,13 +240,17 @@ class GatewayStandardMethodsHelper extends OffsitePaymentGatewayBase implements
         if (OrderHelper::isStatusCancelled($mspOrder->status)) {
             // Move the order to cancel
             $this->logger->debug('Move order to cancelled');
-            $transition = $stateItem->getTransitions()['cancel'];
-            $stateItem->applyTransition($transition);
+            $availableTransitions = $stateItem->getTransitions();
+            if (isset($availableTransitions['cancel'])) {
+                $transition = $availableTransitions['cancel'];
+                $stateItem->applyTransition($transition);
+            } else {
+                $this->logger->warning('Cancel transition not available for order #' . $order->id());
+            }
         }
 
         $this->logger->debug('Getting current value of the state');
         $currentState = $stateItem->getValue();
-
 
         if (OrderHelper::isStatusCompleted($mspOrder->status)) {
             $this->logger->debug('MultiSafepay status is considered completed');
@@ -256,70 +259,80 @@ class GatewayStandardMethodsHelper extends OffsitePaymentGatewayBase implements
                 // Re-open the order, move the order back to draft and move it to the next default status
                 $this->mspOrderHelper->logMsp($order, 'order_reopened');
                 $stateItem->applyDefaultValue();
-                $stateItem->applyTransition(current($stateItem->getTransitions()));
+
+                $availableTransitions = $stateItem->getTransitions();
+                if (!empty($availableTransitions)) {
+                    $stateItem->applyTransition(current($availableTransitions));
+                } else {
+                    $this->logger->error('No transitions available after reopening order #' . $order->id());
+                }
             }
 
             $currentState = $stateItem->getValue();
 
-            // Check if the order has reached the final to last step, even after the re-opening of the order.
-            // If so, don't update the order
+            // Check if the order has reached the final to last step
             if ($currentState['value'] === 'fulfillment') {
                 $this->logger->debug('Order state is currently fulfillment, don\'t update the status');
                 return;
             }
 
-            //Move the order to the next default status
+            // Move the order to the next default status
             $this->logger->debug('Moving order state to the next state');
-            $stateItem->applyTransition(current($stateItem->getTransitions()));
+            $availableTransitions = $stateItem->getTransitions();
+            if (!empty($availableTransitions)) {
+                $stateItem->applyTransition(current($availableTransitions));
+            } else {
+                $this->logger->error('No transitions available for order #' . $order->id());
+            }
         }
 
         $this->logger->debug('Saving the order state');
         $order->save();
     }
 
-  /**
-   * Get the MultiSafepay order.
-   *
-   * @param \Drupal\commerce_order\Entity\OrderInterface  $order
-   *   The order.
-   * @param int $transactionId
-   *   Order id.
-   *
-   * @return mixed|\Symfony\Component\HttpFoundation\Response
-   *   Response given to MSP MCP or get order if gateway is from MSP
-   *
-   * @throws MissingDataException
-   */
+    /**
+     * Get the MultiSafepay order.
+     *
+     * @param \Drupal\commerce_order\Entity\OrderInterface $order
+     *   The order.
+     * @param int $transactionId
+     *   Order id.
+     *
+     * @return mixed|\Symfony\Component\HttpFoundation\Response
+     *   Response given to MSP MCP or get order if gateway is from MSP
+     *
+     * @throws MissingDataException
+     */
     public function getMspOrder(OrderInterface $order, $transactionId)
     {
         $client = new Client();
 
-      // Get current gateway & Check if it is a MSP gateway.
+        // Get current gateway & Check if it is a MSP gateway.
         $gateway = $order->get('payment_gateway')->first()->get('entity')->getValue();
         if (!$this->mspGatewayHelper->isMspGateway($gateway->getPluginId())) {
             return new Response("Non MSP order");
         }
 
-      // Set the mode of the gateway.
+        // Set the mode of the gateway.
         $mode = $this->mspGatewayHelper->getGatewayMode($order);
 
-      // Set the API settings.
+        // Set the API settings.
         $this->mspApiHelper->setApiSettings($client, $mode);
 
         return $client->orders->get('orders', $transactionId);
     }
 
-  /**
-   * Set the behavior when you get a notification back form the API.
-   *
-   * @param \Symfony\Component\HttpFoundation\Request  $request
-   *   Url get data.
-   *
-   * @return \Symfony\Component\HttpFoundation\Response
-   *   The Response given to MSP MCP
-   *
-   * @throws MissingDataException
-   */
+    /**
+     * Set the behavior when you get a notification back form the API.
+     *
+     * @param \Symfony\Component\HttpFoundation\Request $request
+     *   Url get data.
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
+     *   The Response given to MSP MCP
+     *
+     * @throws MissingDataException
+     */
     public function onNotify(Request $request)
     {
         // Get the order id & check if there's no transaction id.
@@ -387,26 +400,26 @@ class GatewayStandardMethodsHelper extends OffsitePaymentGatewayBase implements
         return new Response('OK');
     }
 
-  /**
-   * Create and/or get payment.
-   *
-   * @param \Drupal\commerce_order\Entity\OrderInterface  $order
-   *   The order.
-   * @param object $mspOrder
-   *   MultiSafepay order data.
-   *
-   * @return object
-   *   Load the payment
-   *
-   * @throws \Drupal\Core\Entity\EntityStorageException|MissingDataException
-   */
+    /**
+     * Create and/or get payment.
+     *
+     * @param \Drupal\commerce_order\Entity\OrderInterface $order
+     *   The order.
+     * @param object $mspOrder
+     *   MultiSafepay order data.
+     *
+     * @return object
+     *   Load the payment
+     *
+     * @throws \Drupal\Core\Entity\EntityStorageException|MissingDataException
+     */
     public function createPayment(OrderInterface $order, $mspOrder)
     {
         // Set amount.
         $mspAmount = $mspOrder->amount / 100;
 
         // Get payment gateway.
-        $gateway = $order->get('payment_gateway')->first()->get('entity')->getValue();
+        $gateway = $order->get('payment_gateway')->first()->get('entity')->getTarget()->getValue();
 
         // If payment already exist, else create a new payment.
         if (is_null(
@@ -423,82 +436,82 @@ class GatewayStandardMethodsHelper extends OffsitePaymentGatewayBase implements
 
             $this->paymentStorage->create(
                 [
-                    'state'           => 'new',
-                    'amount'          => new Price(
-                        (string) $mspAmount,
+                    'state' => 'new',
+                    'amount' => new Price(
+                        (string)$mspAmount,
                         $mspOrder->currency
                     ),
-                    'payment_gateway' => $gateway->getPluginId(),
-                    'order_id'        => $order->id(),
-                    'remote_id'       => $mspOrder->transaction_id,
-                    'remote_state'    => $mspOrder->status,
+                    'payment_gateway' => $gateway->id(),
+                    'order_id' => $order->id(),
+                    'remote_id' => $mspOrder->transaction_id,
+                    'remote_state' => $mspOrder->status,
                 ]
             )->save();
         }
 
-      // Add payment capture to log.
+        // Add payment capture to log.
         if ($mspOrder->status === OrderHelper::MSP_COMPLETED) {
             $this->mspOrderHelper->logMsp($order, 'order_payment_capture');
         }
 
-      // Save the new record.
+        // Save the new record.
         return $this->paymentStorage->loadByRemoteId($mspOrder->transaction_id);
     }
 
-  /**
-   * Refund a payment.
-   *
-   * @param \Drupal\commerce_payment\Entity\PaymentInterface $payment
-   *   The payment.
-   * @param \Drupal\commerce_price\Price|null $amount
-   *   The amount to refund.
-   *
-   * @throws \Drupal\Core\Entity\EntityStorageException
-   */
+    /**
+     * Refund a payment.
+     *
+     * @param \Drupal\commerce_payment\Entity\PaymentInterface $payment
+     *   The payment.
+     * @param \Drupal\commerce_price\Price|null $amount
+     *   The amount to refund.
+     *
+     * @throws \Drupal\Core\Entity\EntityStorageException
+     */
     public function refundPayment(
         PaymentInterface $payment,
-        Price $amount = null
+        Price            $amount = null
     ) {
-      // Get all data.
+        // Get all data.
         $order = $payment->getOrder();
         $orderId = $orderNumber = $order->getOrderNumber() ?: $payment->getOrderId();
         $currency = $amount->getCurrencyCode();
 
-      // If not specified, refund the entire amount.
+        // If not specified, refund the entire amount.
         $amount = $amount ?: $payment->getAmount();
 
-      // Check if $payment amount is =< then refund $amount.
+        // Check if $payment amount is =< then refund $amount.
         $this->assertRefundAmount($payment, $amount);
 
-      // Set all data.
+        // Set all data.
         $data = [
-        "currency"    => $currency,
-        "amount"      => $amount->getNumber() * 100,
-        "description" => "Refund: {$orderId}",
+            "currency" => $currency,
+            "amount" => $amount->getNumber() * 100,
+            "description" => "Refund: {$orderId}",
         ];
 
-      // Set the mode of the gateway.
+        // Set the mode of the gateway.
         $mode = $this->mspGatewayHelper->getGatewayMode($payment->getOrder());
 
-      // Make API request to send refund.
+        // Make API request to send refund.
         $client = new Client();
         $mspApiHelper = new ApiHelper();
         $mspApiHelper->setApiSettings($client, $mode);
 
         $client->orders->post($data, "orders/{$orderId}/refunds");
 
-      // If refund is processed and success is false.
+        // If refund is processed and success is false.
         if ($client->orders->success === false) {
             $this->exceptionHelper->paymentGatewayException("Refund declined");
         }
 
-      // Set new refunded amount.
+        // Set new refunded amount.
         $oldRefundedAmount = $payment->getRefundedAmount();
         $newRefundedAmount = $oldRefundedAmount->add($amount);
         $payment->setRefundedAmount($newRefundedAmount);
         $payment->save();
 
-      // Choose what log will be used.
+        // Choose what log will be used.
         if ($newRefundedAmount->lessThan($payment->getAmount())) {
             $logfile = 'order_partial_refund';
         } else {
@@ -509,18 +522,18 @@ class GatewayStandardMethodsHelper extends OffsitePaymentGatewayBase implements
         $this->mspOrderHelper->logMsp($payment->getOrder(), $logfile);
     }
 
-  /**
-   * Check if we can get an order from the Order number.
-   *
-   * @param int $transactionId
-   *   Transaction id.
-   *
-   * @return \Drupal\commerce_order\Entity\OrderInterface|null
-   *   Get the order. If it is not found, return null.
-   *
-   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
-   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
-   */
+    /**
+     * Check if we can get an order from the Order number.
+     *
+     * @param int $transactionId
+     *   Transaction id.
+     *
+     * @return \Drupal\commerce_order\Entity\OrderInterface|null
+     *   Get the order. If it is not found, return null.
+     *
+     * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+     * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
+     */
     public function getOrderFromOrderNumber($transactionId)
     {
         $orders = $this->entityTypeManager->getStorage('commerce_order')->loadByProperties(['order_number' => $transactionId]);
